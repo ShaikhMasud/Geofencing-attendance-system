@@ -1,0 +1,150 @@
+{% extends 'student_template/base_template.html' %}
+{% block page_title %}
+Barcode Scanner
+{% endblock page_title %}
+{% block main_content %}
+<section class="content">
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-md-12">
+            <div class="card card-primary">
+               <div class="card-header">
+                  <h3 class="card-title">Barcode Scan</h3>
+               </div>
+               <form method="post" id="barcode_scan_form">
+                  <div class="form-group">
+                     <label>Subject</label>
+                     <select class="form-control" name="subject" id="subject">
+                        {% for subject in subjects %}
+                        <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+                        {% endfor %}
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     <label>Attendance Date</label>
+                     <input type="date" class="form-control" name="attendance_date" id="attendance_date">
+                  </div>
+                  <div class="form-group">
+                     <label>Session Year</label>
+                     <select class="form-control" name="session_year" id="session_year">
+                        {% for session_year in session_years %}
+                        <option value="{{ session_year.id }}">{{ session_year.session_start_year }} - {{ session_year.session_end_year }}</option>
+                        {% endfor %}
+                     </select>
+                  </div>
+                  <div class="card-body">
+                     <button type="button" class="btn btn-primary btn-block" id="scan_button">Scan</button>
+                     <div id="barcode_data" class="mt-3"></div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<div id="map"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
+<script>
+document.getElementById('scan_button').addEventListener('click', function() {
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector('#barcode_data')
+        },
+        decoder: {
+            readers: ["code_39_reader"] // Adjust this line for different barcode types
+        }
+    }, function(err) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        Quagga.start();
+        Quagga.onDetected(function(result) {
+            var barcodeData = result.codeResult.code;
+            var attendanceDate = document.getElementById('attendance_date').value;
+            var sessionYearId = document.getElementById('session_year').value;
+            console.log(barcodeData)
+            sendBarcodeAndLocation(barcodeData, attendanceDate, sessionYearId);
+            Quagga.stop();
+        });
+    });
+});
+
+function sendBarcodeAndLocation(barcodeData, attendanceDate, sessionYearId) {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var subjectId = document.getElementById('subject').value; // Get subject ID
+            sendBarcodeAndLocationToServer(barcodeData, attendanceDate, latitude, longitude, sessionYearId, subjectId); // Pass subjectId to sendBarcodeAndLocationToServer
+            initializeMap(latitude, longitude);
+        });
+    } else {
+        alert('Geolocation is not supported by your browser');
+    }
+}
+function initializeMap(latitude, longitude) {
+    mapboxgl.accessToken = 'pk.eyJ1IjoiaXNodGVxIiwiYSI6ImNsc3p2Ymx4dzBoMjIyaXA5Mm5lcnE5ODAifQ.odOfSzsCUyKY5XEh_mg8xw';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [longitude, latitude], // Set the map center to current location
+        zoom: 13
+    });
+
+    // Add marker for current location
+    new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
+}
+
+
+
+function sendBarcodeAndLocationToServer(barcodeData, attendanceDate, latitude, longitude, sessionYearId, subjectId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "{% url 'verify-barcode' %}", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    const csrftoken = getCookie('csrftoken');
+    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                alert("Barcode matched with login user and within the geofence!");
+                {#saveAttendance(barcodeData, attendanceDate, sessionYearId, subjectId); // Pass subjectId to saveAttendance#}
+            } else {
+                alert(response.error);
+            }
+        }
+    };
+    xhr.send(JSON.stringify({
+        barcode: barcodeData,
+        latitude: latitude,
+        longitude: longitude,
+        subjectId: subjectId,
+        sessionYearId: sessionYearId
+    }));
+}
+
+
+
+// Function to get CSRF token from cookies
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock main_content %}
