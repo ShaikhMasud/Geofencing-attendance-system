@@ -47,15 +47,32 @@ An intelligent attendance tracking system that ensures students mark their prese
 * **Database**: MySQL
 
 ---
+### Screenshots 
 
-## 💡 How It Works
+Admin UI:
+![image](https://github.com/user-attachments/assets/85b3e048-d610-4c8d-883a-cb94b8476aa2)
+![image](https://github.com/user-attachments/assets/ef01c45a-cb0f-47da-8bbd-39085fd3721e)
+![image](https://github.com/user-attachments/assets/49a69bf5-aa82-43df-bf33-92752df7e08a)
+![image](https://github.com/user-attachments/assets/96826b31-32c0-4bf3-a6ce-678abc6eef45)
+![image](https://github.com/user-attachments/assets/73c12d9e-f17f-4a5a-aaf1-23723b1f05c1)
+![image](https://github.com/user-attachments/assets/1661ff85-3624-4bc4-8f14-a7c8e83248d8)
+![image](https://github.com/user-attachments/assets/dd35a7b9-0358-4f5e-a939-17bdd73f42b2)
 
-1. 🎓 **Student Login**: Students log in to the portal and open the attendance page.
-2. 📍 **Location Verification**: The app verifies if the student is within the geofence using Mapbox.
-3. 🧾 **Barcode Scan**: Students scan their unique ID card using webcam (QuaggaJS + OpenCV).
-4. ✅ **Mark Attendance**: If both geolocation and barcode scan are valid, attendance is recorded.
+Student UI:
+![image](https://github.com/user-attachments/assets/6e1c3ce7-bb1d-4924-899c-455443620d71)
+![image](https://github.com/user-attachments/assets/46399832-366d-449e-8d96-7b685b5e9c58
+![image](https://github.com/user-attachments/assets/f5a83530-21cb-483d-b7f0-eba8cb43680f)
 
----
+Staff/Teacher UI:
+![image](https://github.com/user-attachments/assets/149f8a10-2008-4986-b264-0a6c02a78f69)
+Manual attendance
+![image](https://github.com/user-attachments/assets/12eb0a99-b4e2-4f86-a19d-a7f2ed0a6b4e)
+
+
+
+
+
+
 
 ## 📦 Setup Instructions
 
@@ -95,14 +112,19 @@ DATABASES = {
 python manage.py makemigrations
 python manage.py migrate
 ```
+5 **Create a SuperUser**
 
-5. **Start the Server**
+```bash
+python manage.py createsuperuser
+```
+
+6. **Start the Server**
 
 ```bash
 python manage.py runserver
 ```
 
-6. **Access the App**
+7. **Access the App**
 
 ```
 http://localhost:8000/
