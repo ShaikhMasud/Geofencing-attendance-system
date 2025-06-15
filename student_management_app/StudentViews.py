@@ -226,6 +226,7 @@ def is_inside_geofence(latitude, longitude, coordinates):
 
 @csrf_exempt
 def verify_barcode_view(request):
+    print("hello")
     if request.method == 'POST':
         data = json.loads(request.body)
         scanned_barcode = data.get('barcode')
