@@ -61,6 +61,7 @@ Admin UI:
 Student UI:
 ![image](https://github.com/user-attachments/assets/6e1c3ce7-bb1d-4924-899c-455443620d71)
 ![image](https://github.com/user-attachments/assets/46399832-366d-449e-8d96-7b685b5e9c58)
+Here the location of the class is preset in the backend. Therefore when the user scan his barcode his current location and location of classroom is calculated and if the student is within the diameter then his attendance will make else message will pop of student being out of the range
 ![image](https://github.com/user-attachments/assets/f5a83530-21cb-483d-b7f0-eba8cb43680f)
 ![image](https://github.com/user-attachments/assets/7f646f38-7b69-4d50-a3ba-aca53e8db2d6)
 
